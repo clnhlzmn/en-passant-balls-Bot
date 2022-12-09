@@ -10,6 +10,7 @@ import logging
 import string
 import random
 import time
+import re
 
 log_format = "%(asctime)s: %(threadName)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO, datefmt="%H:%M:%S")
@@ -22,7 +23,7 @@ SECRET = os.getenv("CLIENT_SECRET")
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 
-KEYWORDS = {"en", "passant", "balls", "holy", "hell"}
+KEYWORDS = {"^en$", "passant", "balls", "holy", "hell"}
 DONT_COMMENT_KEYWORD = "!balls"
 TRIGGER_RANDOMLY = 7
 
@@ -133,7 +134,7 @@ def should_comment_on_comment(comment: Comment, subreddit_name: str) -> Tuple[bo
     is_low_effort = False
 
     for keyword in KEYWORDS:
-        if keyword in body.split(' '):
+        if len(list(filter(lambda s: re.search(keyword, s), body.split(' ')))):
             has_keywords = True
             if body == keyword:
                 is_low_effort = True
