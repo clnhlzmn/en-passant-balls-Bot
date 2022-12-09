@@ -1,2 +1,2 @@
-# PetrosianBot
-Bot to comment Tigran Petrosian's legendary copypasta.
+# EnPassantBallsBot
+Bot to comment u/Earthbender32's legendary copypasta.

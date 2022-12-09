@@ -22,21 +22,19 @@ SECRET = os.getenv("CLIENT_SECRET")
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 
-KEYWORDS = {"pipi", "pampers", "tigran", "petrosian"}
-DONT_COMMENT_KEYWORD = "!nopipi"
+KEYWORDS = {"en", "passant", "balls", "holy", "hell"}
+DONT_COMMENT_KEYWORD = "!balls"
 TRIGGER_RANDOMLY = 7
 
-PASTA = """Are you kidding ??? What the **** are you talking about man ? You are a biggest looser i ever seen in my life ! You was doing PIPI in your pampers when i was beating players much more stronger then you! You are not proffesional, because proffesionals knew how to lose and congratulate opponents, you are like a girl crying after i beat you! Be brave, be honest to yourself and stop this trush talkings!!! Everybody know that i am very good blitz player, i can win anyone in the world in single game! And "w"esley "s"o is nobody for me, just a player who are crying every single time when loosing, ( remember what you say about Firouzja ) !!! Stop playing with my name, i deserve to have a good name during whole my chess carrier, I am Officially inviting you to OTB blitz match with the Prize fund! Both of us will invest 5000$ and winner takes it all!
-I suggest all other people who's intrested in this situation, just take a look at my results in 2016 and 2017 Blitz World championships, and that should be enough... No need to listen for every crying babe, Tigran Petrosyan is always play Fair ! And if someone will continue Officially talk about me like that, we will meet in Court! God bless with true! True will never die ! Liers will kicked off...\n\n"""
+PASTA = """holy fucking shit. if i see ONE more en passant meme i'm going to chop my fucking balls off.\n holy shit it is actually impressive how incredibly unfunny the entire sub is. it's not that\n complicated, REPEATING THE SAME FUCKING JOKE OVER AND OVER AGAIN DOES NOT MAKE\n IT FUNNIER. this stupid fucking meme has been milked to fucking death IT'S NOT FUNNIER\n THE 973RD TIME YOU MAKE THE EXACT SAME FUCKING JOKE. WHAT'S EVEN THE JOKE??????\n IT'S JUST "haha it's the funne move from chess" STOP. and the WORST part is that en passant\n was actually funny for like a few years and it got fucking ruined in like a week because\n EVERYONE POSTED THE EXACT SAME FUCKING JOKE OVER AND OVER AGAIN. PLEASE MAKE IT\n STOP. SEEING ALL YOUR SHITTY MEMES IS ACTUAL FUCKING MENTAL TORTURE YOU ALL ARE\n NOT FUNNY. COME UP WITH A DIFFERENT FUCKING JOKE PLEASE"""
 
 SHORTENED_PHRASES = [
-    "Are you kidding ??? What the **** are you talking about man ?",
-    "You was doing PIPI in your pampers when i was beating players much more stronger then you!",
-    "Be brave, be honest to yourself and stop this trush talkings!!!",
-    "Everybody know that i am very good blitz player, i can win anyone in the world in single game!",
-    '"w"esley "s"o is nobody for me',
-    "Tigran Petrosyan is always play Fair !",
-    "God bless with true! True will never die ! Liers will kicked off...",
+    "holy fucking shit. if i see ONE more en passant meme i'm going to chop my fucking balls off.",
+    "WHAT'S EVEN THE JOKE??????",
+    "this stupid fucking meme has been milked to fucking death"
+    "SEEING ALL YOUR SHITTY MEMES IS ACTUAL FUCKING MENTAL TORTURE",
+    "COME UP WITH A DIFFERENT FUCKING JOKE PLEASE",
+    "en passant was actually funny for like a few years and it got fucking ruined"
 ]
 
 # Set the path absolute path of the chess_post database
@@ -45,7 +43,7 @@ db = pickledb.load(pickle_path, True)
 
 # Create the reddit object instance using Praw
 reddit = Reddit(
-    user_agent="petrosian_bot",
+    user_agent="en_passant_bot",
     client_id=CLIENT,
     client_secret=SECRET,
     username=USERNAME,
@@ -185,9 +183,9 @@ def write_comment(obj: Union[Comment, Submission], is_low_effort: bool = False):
     else:
         pasta = PASTA
     source_tag = (
-        "[^(fmhall)](https://www.reddit.com/user/fmhall) ^| [^(github)]({}) ^| [^(chill)]({})\n".format(
-            "https://github.com/fmhall/Petrosian-Bot",
-            "https://www.youtube.com/channel/UCqGhULGgnf6IbY5JXWuVVtQ/live"
+        "[^(cholz)]({}) ^| [^(github)]({}) \n".format(
+            "https://www.reddit.com/user/cholz",
+            "https://github.com/clnhlzmn/en-passant-balls-Bot"
         )
     )
 
