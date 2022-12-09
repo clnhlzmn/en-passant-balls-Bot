@@ -26,7 +26,10 @@ KEYWORDS = {"en", "passant", "balls", "holy", "hell"}
 DONT_COMMENT_KEYWORD = "!balls"
 TRIGGER_RANDOMLY = 7
 
-PASTA = """holy fucking shit. if i see ONE more en passant meme i'm going to chop my fucking balls off.\n holy shit it is actually impressive how incredibly unfunny the entire sub is. it's not that\n complicated, REPEATING THE SAME FUCKING JOKE OVER AND OVER AGAIN DOES NOT MAKE\n IT FUNNIER. this stupid fucking meme has been milked to fucking death IT'S NOT FUNNIER\n THE 973RD TIME YOU MAKE THE EXACT SAME FUCKING JOKE. WHAT'S EVEN THE JOKE??????\n IT'S JUST "haha it's the funne move from chess" STOP. and the WORST part is that en passant\n was actually funny for like a few years and it got fucking ruined in like a week because\n EVERYONE POSTED THE EXACT SAME FUCKING JOKE OVER AND OVER AGAIN. PLEASE MAKE IT\n STOP. SEEING ALL YOUR SHITTY MEMES IS ACTUAL FUCKING MENTAL TORTURE YOU ALL ARE\n NOT FUNNY. COME UP WITH A DIFFERENT FUCKING JOKE PLEASE\n"""
+DEFAULT_COUNT = 973
+COUNT_KEY = 'count_key'
+
+PASTA = """holy fucking shit. if i see ONE more en passant meme i'm going to chop my fucking balls off.\n holy shit it is actually impressive how incredibly unfunny the entire sub is. it's not that\n complicated, REPEATING THE SAME FUCKING JOKE OVER AND OVER AGAIN DOES NOT MAKE\n IT FUNNIER. this stupid fucking meme has been milked to fucking death IT'S NOT FUNNIER\n THE {} TIME YOU MAKE THE EXACT SAME FUCKING JOKE. WHAT'S EVEN THE JOKE??????\n IT'S JUST "haha it's the funne move from chess" STOP. and the WORST part is that en passant\n was actually funny for like a few years and it got fucking ruined in like a week because\n EVERYONE POSTED THE EXACT SAME FUCKING JOKE OVER AND OVER AGAIN. PLEASE MAKE IT\n STOP. SEEING ALL YOUR SHITTY MEMES IS ACTUAL FUCKING MENTAL TORTURE YOU ALL ARE\n NOT FUNNY. COME UP WITH A DIFFERENT FUCKING JOKE PLEASE\n\n"""
 
 SHORTENED_PHRASES = [
     "holy fucking shit. if i see ONE more en passant meme i'm going to chop my fucking balls off.",
@@ -49,6 +52,13 @@ reddit = Reddit(
     username=USERNAME,
     password=PASSWORD,
 )
+
+
+def ordinalize(n):
+    suffixes = { 1: "ST", 2: "ND", 3: "RD" }
+    i = n if (n < 20) else (n % 10)
+    suffix = suffixes.get(i, 'TH')
+    return str(n) + suffix
 
 
 def restart(handler: Callable):
@@ -123,7 +133,7 @@ def should_comment_on_comment(comment: Comment, subreddit_name: str) -> Tuple[bo
     is_low_effort = False
 
     for keyword in KEYWORDS:
-        if keyword in body:
+        if keyword in body.split(' '):
             has_keywords = True
             if body == keyword:
                 is_low_effort = True
@@ -181,7 +191,12 @@ def write_comment(obj: Union[Comment, Submission], is_low_effort: bool = False):
     if is_low_effort:
         pasta = random.choice(SHORTENED_PHRASES) + "\n\n"
     else:
-        pasta = PASTA
+        count = db.get(COUNT_KEY)
+        if not count:
+            count = DEFAULT_COUNT
+        pasta = PASTA.format(ordinalize(count))
+        db.set(COUNT_KEY, count + 1)
+        db.dump()
     source_tag = (
         "[^(cholz)]({}) ^| [^(github)]({}) \n".format(
             "https://www.reddit.com/user/cholz",
@@ -256,14 +271,14 @@ if __name__ == "__main__":
         target=delete_bad_comments, args=[USERNAME], name="cleanup"
     )
 
-    threads.append(chess_posts_thread)
+    # threads.append(chess_posts_thread)
     threads.append(ac_posts_thread)
-    threads.append(chess_comments_thread)
+    # threads.append(chess_comments_thread)
     threads.append(ac_comments_thread)
-    threads.append(chessbeginners_posts_thread)
-    threads.append(tournamentchess_posts_thread)
-    threads.append(chessbeginners_comments_thread)
-    threads.append(tournamentchess_comments_thread)
+    # threads.append(chessbeginners_posts_thread)
+    # threads.append(tournamentchess_posts_thread)
+    # threads.append(chessbeginners_comments_thread)
+    # threads.append(tournamentchess_comments_thread)
     threads.append(mentions_thread)
     threads.append(cleanup_thread)
 
