@@ -4,13 +4,14 @@ from praw import Reddit
 from praw.models import Submission, Subreddit, Comment
 from dotenv import load_dotenv
 import pickledb
-from typing import Callable
+from typing import Callable, List
 import threading
 import logging
 import string
 import random
 import time
 import re
+import humanize
 
 log_format = "%(asctime)s: %(threadName)s: %(message)s"
 logging.basicConfig(format=log_format, level=logging.INFO, datefmt="%H:%M:%S")
@@ -23,7 +24,7 @@ SECRET = os.getenv("CLIENT_SECRET")
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 
-KEYWORDS = {"^en$", "passant", "balls", "holy", "hell"}
+KEYWORDS = ['\s*en\s*passant\s*', '\s*passant\s*', '\s*balls\s*', '\s*holy\s*hell\s*']
 DONT_COMMENT_KEYWORD = "!balls"
 TRIGGER_RANDOMLY = 7
 
@@ -55,11 +56,22 @@ reddit = Reddit(
 )
 
 
-def ordinalize(n):
-    suffixes = { 1: "ST", 2: "ND", 3: "RD" }
-    i = n if (n < 20) else (n % 10)
-    suffix = suffixes.get(i, 'TH')
-    return str(n) + suffix
+def check_has_keywords(keywords: List[str], text: str) -> bool:
+    for kw in keywords:
+        if re.search(kw, text):
+            return True
+    return False
+
+
+def check_is_low_effort(keywords: List[str], text: str) -> bool:
+    for kw in keywords:
+        m = re.match(kw, text)
+        if not m:
+            continue
+        start, stop = m.span()
+        if stop - start == len(text):
+            return True
+    return False
 
 
 def restart(handler: Callable):
@@ -130,16 +142,12 @@ def should_comment_on_comment(comment: Comment, subreddit_name: str) -> Tuple[bo
 
     body = standardize_text(comment.body)
     obj_id = str(comment.id)
-    has_keywords = False
-    is_low_effort = False
+    has_keywords = check_has_keywords(KEYWORDS, body)
+    is_low_effort = check_is_low_effort(KEYWORDS, body)
 
-    for keyword in KEYWORDS:
-        if len(list(filter(lambda s: re.search(keyword, s), body.split(' ')))):
-            has_keywords = True
-            if body == keyword:
-                is_low_effort = True
-    if not has_keywords and subreddit_name == "anarchychess":
-        if random.randint(0, 1000) == TRIGGER_RANDOMLY:
+    if not has_keywords:
+        if subreddit_name == "anarchychess" \
+            and random.randint(0, 1000) == TRIGGER_RANDOMLY:
             return True, False
         return False, is_low_effort
     if comment.author == "B0tRank":
@@ -166,14 +174,11 @@ def should_comment_on_post(post: Submission) -> Tuple[bool, bool]:
     body = standardize_text(post.selftext)
     title = standardize_text(post.title)
     obj_id = str(post.id)
-    has_keywords = False
-    is_low_effort = False
-    for keyword in KEYWORDS:
-        for text in [body, title]:
-            if keyword in text:
-                has_keywords = True
-                if text == keyword:
-                    is_low_effort = True
+    has_keywords = check_has_keywords(KEYWORDS, body) \
+        or check_has_keywords(KEYWORDS, title)
+    is_low_effort = check_is_low_effort(KEYWORDS, body) \
+        or check_is_low_effort(KEYWORDS, title)
+
     if not has_keywords:
         return False, is_low_effort
     if post.author == USERNAME:
@@ -195,7 +200,7 @@ def write_comment(obj: Union[Comment, Submission], is_low_effort: bool = False):
         count = db.get(COUNT_KEY)
         if not count:
             count = DEFAULT_COUNT
-        pasta = PASTA.format(ordinalize(count))
+        pasta = PASTA.format(humanize.ordinal(count))
         db.set(COUNT_KEY, count + 1)
         db.dump()
     source_tag = (

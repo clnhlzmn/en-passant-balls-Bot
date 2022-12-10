@@ -1,3 +1,4 @@
 praw
 python-dotenv
 pickledb
+humanize
